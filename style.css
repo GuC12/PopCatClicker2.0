@@ -1,0 +1,213 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: burlywood;
+  font-family: Arial, sans-serif;
+}
+
+.game {
+  position: relative;
+  min-height: 100vh;
+  padding: 20px;
+  text-align: center;
+}
+
+h1 {
+  color: #333;
+  margin: 0 0 12px;
+}
+
+#h2,
+p {
+  color: #000;
+}
+
+.score-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+#playBtn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  padding: 10px 20px;
+  font-size: 18px;
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  background-color: #4caf50;
+  color: white;
+}
+
+.volume-control {
+  position: absolute;
+  top: 30px;
+  left: 250px;
+}
+
+#popcat {
+  display: block;
+  width: min(900px, 90vw);
+  margin: 30px auto 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+#popcat:active {
+  transform: scale(0.9);
+}
+
+#PopCornPopCat {
+  width: 150px;
+  transform: translateX(-30px);
+}
+
+#coin1 {
+  width: 50px;
+}
+
+#coin2,
+#coin3,
+#coin4,
+#coin5 {
+  width: 30px;
+  height: 30px;
+  transform: translateY(10px);
+}
+
+#shop {
+  width: 220px;
+  height: 150px;
+  background-image: url("Img/PopCatBackground.png");
+  background-size: cover;
+  background-position: center;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  position: absolute;
+  top: 100px;
+  right: 200px;
+  user-select: none;
+}
+
+#shop:hover {
+  opacity: 0.8;
+}
+
+#shopOverlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgb(0 0 0 / 70%);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#shopWindow {
+  background: url("Img/ShopBackround.jpg") no-repeat center center;
+  background-size: cover;
+  padding: 20px;
+  border-radius: 15px;
+  width: 350px;
+  max-width: calc(100vw - 32px);
+  max-height: min(400px, calc(100vh - 32px));
+  overflow-y: auto;
+  position: relative;
+  color: white;
+}
+
+#closeShop {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: none;
+  background: red;
+  color: white;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+#closeShop:hover {
+  background: darkred;
+}
+
+.shop-items {
+  margin-top: 40px;
+}
+
+.item {
+  border: 2px solid #000;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+.item img {
+  width: 100px;
+  height: 100px;
+}
+
+.price {
+  font-weight: bold;
+  color: #444;
+}
+
+.buy {
+  padding: 5px 10px;
+  background: #4caf50;
+  border: none;
+  color: white;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.buy:hover:not(:disabled) {
+  background: #45a049;
+}
+
+.buy:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+@media (max-width: 760px) {
+  .game {
+    padding-top: 120px;
+  }
+
+  #playBtn,
+  .volume-control,
+  #shop {
+    position: static;
+    margin: 12px auto;
+  }
+
+  .volume-control {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    align-items: center;
+  }
+
+  #shop {
+    display: block;
+  }
+}
