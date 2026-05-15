@@ -2,40 +2,41 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="description" content="PopCat Clicker — кликер про кота с улучшениями, заданиями и скинами.">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#f4b84a">
   <link rel="icon" href="Img/PopCatCoin.png">
   <link rel="apple-touch-icon" href="Img/PopCatCoin.png">
   <link rel="stylesheet" href="style.css">
-  <title>PopCatClicker 2.0</title>
+  <title>PopCat Clicker</title>
 </head>
 <body>
-  <main class="game" id="game">
+  <main class="game" id="game" aria-label="PopCat Clicker">
     <section class="hud" aria-label="Статистика игры">
       <div class="brand">
-        <h1>POP CAT CLICKER 2.0</h1>
-        <p>Кликай по коту, копи монеты и прокачивай мемную машину.</p>
+        <h1 data-i18n="gameTitle">PopCat Clicker</h1>
+        <p data-i18n="tagline">Кликай по коту, копи монеты и прокачивай мемную машину.</p>
       </div>
 
       <div class="score-card">
         <span class="score-label">Score</span>
         <strong id="score">0</strong>
-        <img src="Img/PopCatCoin.png" alt="" class="coin-icon">
+        <img src="Img/PopCatCoin.png" alt="" class="coin-icon" draggable="false">
       </div>
 
       <div class="stats-grid">
         <div>
-          <span>За клик</span>
+          <span data-i18n="perClick">За клик</span>
           <strong id="clickPowerDisplay">1</strong>
         </div>
         <div>
-          <span>Автоклик</span>
+          <span data-i18n="autoClick">Автоклик</span>
           <strong id="autoClickDisplay">0/с</strong>
         </div>
         <div>
-          <span>Буст</span>
+          <span data-i18n="boost">Буст</span>
           <strong id="boostDisplay">нет</strong>
         </div>
         <div>
@@ -45,22 +46,22 @@
       </div>
 
       <section class="quests-panel" aria-label="Задания">
-        <h2>Задания</h2>
+        <h2 data-i18n="questsTitle">Задания</h2>
         <div id="quests" class="quests"></div>
       </section>
     </section>
 
     <section class="stage" aria-label="Игровое поле">
       <button id="catButton" class="cat-button" aria-label="Кликнуть POP CAT">
-        <img id="popcat" src="Img/PopCat.png" alt="Pop Cat">
+        <img id="popcat" src="Img/PopCat.png" alt="Pop Cat" draggable="false">
       </button>
       <section class="controls" aria-label="Управление">
-        <button id="shop" class="primary-btn">Магазин POP CAT</button>
-        <button id="rewardBtn" class="reward-btn">Смотреть рекламу: x2 клики на 60 сек</button>
-        <button id="playBtn" class="secondary-btn">Включить музыку</button>
+        <button id="shop" class="primary-btn" data-i18n="shopButton">Магазин POP CAT</button>
+        <button id="rewardBtn" class="reward-btn" data-i18n="rewardButton">Смотреть рекламу: x2 клики на 60 сек</button>
+        <button id="playBtn" class="secondary-btn" data-i18n="musicOn">Включить музыку</button>
         <label class="volume-control" for="volume">
-          <span>Громкость</span>
-          <input type="range" id="volume" min="0" max="1" step="0.01" value="0.7">
+          <span data-i18n="volume">Громкость</span>
+          <input type="range" id="volume" min="0" max="1" step="0.01" value="0.7" aria-label="Громкость">
         </label>
       </section>
       <div class="rush-meter" aria-label="Заряд POP RUSH">
@@ -75,36 +76,28 @@
   <div id="shopOverlay" class="modal" aria-hidden="true">
     <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
       <header class="modal-header">
-        <div>
-          <h2 id="shopTitle">Магазин POP CAT</h2>
-        </div>
+        <h2 id="shopTitle" data-i18n="shopTitle">Магазин POP CAT</h2>
         <button id="closeShop" class="close-btn" aria-label="Закрыть магазин">×</button>
       </header>
 
       <div id="shopItems" class="shop-items"></div>
 
       <section class="rebirth-card">
-        <img src="Img/Rebirth.png" alt="">
+        <img src="Img/Rebirth.png" alt="" draggable="false">
         <div>
-          <h3>Перерождение</h3>
-          <p>Сбросит монеты и обычные прокачки, но навсегда усилит все клики.</p>
-          <strong>Цена: <span id="rebirthPriceValue">25000</span></strong>
+          <h3 data-i18n="rebirthTitle">Перерождение</h3>
+          <p data-i18n="rebirthDescription">Сбросит монеты и обычные прокачки, но навсегда усилит все клики.</p>
+          <strong><span data-i18n="price">Цена</span>: <span id="rebirthPriceValue">25000</span></strong>
         </div>
-        <button id="rebirthBtn" class="buy">Переродиться</button>
+        <button id="rebirthBtn" class="buy" data-i18n="rebirthButton">Переродиться</button>
       </section>
     </div>
   </div>
 
   <div id="pauseOverlay" class="pause-overlay" aria-hidden="true">
-    <div>Пауза</div>
+    <div data-i18n="pause">Пауза</div>
   </div>
 
-  <audio id="bgMusic" src="Sound/Music.mp3" loop preload="auto"></audio>
-  <audio id="PopCatSound" src="Sound/PopCatSound.mp3" preload="auto"></audio>
-  <audio id="Knock" src="Sound/Knock.mp3" preload="auto"></audio>
-
-  <!-- Yandex Games SDK. Локально может быть недоступен, игра это обрабатывает. -->
-  <script src="/sdk.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

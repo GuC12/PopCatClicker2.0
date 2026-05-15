@@ -1,82 +1,137 @@
 "use strict";
 
 const SAVE_KEY = "popcat-clicker-2-save";
-const SAVE_VERSION = 2;
+const SAVE_VERSION = 3;
 const INTERSTITIAL_COOLDOWN = 180000;
 const CLOUD_SAVE_DELAY = 5000;
 const RUSH_MAX_CHARGE = 1000;
 const RUSH_DURATION = 15000;
 
+const I18N = {
+  ru: {
+    gameTitle: "PopCat Clicker",
+    tagline: "Кликай по коту, копи монеты и прокачивай мемную машину.",
+    perClick: "За клик",
+    autoClick: "Автоклик",
+    boost: "Буст",
+    none: "нет",
+    active: "активен",
+    questsTitle: "Задания",
+    shopButton: "Магазин POP CAT",
+    rewardButton: "Смотреть рекламу: x2 клики на 60 сек",
+    musicOn: "Включить музыку",
+    musicOff: "Выключить музыку",
+    volume: "Громкость",
+    shopTitle: "Магазин POP CAT",
+    price: "Цена",
+    level: "Уровень",
+    buyFor: "Купить за",
+    bought: "Куплено",
+    wear: "Надеть",
+    worn: "Надето",
+    rebirthTitle: "Перерождение",
+    rebirthDescription: "Сбросит монеты и обычные прокачки, но навсегда усилит все клики.",
+    rebirthButton: "Переродиться",
+    pause: "Пауза",
+    ready: "Готово! Кликай по коту и собирай монеты.",
+    needMore: "Нужно ещё {amount} монет.",
+    maxed: "Уже куплено по максимуму.",
+    equipped: "{name} надет!",
+    boughtMessage: "{name} куплено!",
+    rebirthDone: "Перерождение готово! Все клики стали сильнее.",
+    rush: "POP RUSH! x3 ко всем монетам на 15 секунд!",
+    questNotReady: "Задание ещё не выполнено.",
+    questDone: "Задание выполнено! +{amount} монет.",
+    questsNext: "Новый набор заданий открыт!",
+    rewardUnavailable: "Видео-реклама доступна только на Яндекс Играх.",
+    rewarded: "Награда получена: x2 клики на 60 секунд!",
+    rewardNotWatched: "Видео не досмотрено, награда не выдана.",
+    adUnavailable: "Реклама сейчас недоступна. Попробуй позже.",
+    rewardPrefix: "Награда",
+    claimPrefix: "Забрать",
+    claimed: "Забрано",
+    items: {
+      clickPower: ["+1 клик", "Каждый тап приносит больше монет.", ""],
+      autoClicker: ["Авто-кликер", "Сам добывает монеты, пока игра открыта.", ""],
+      multiplier: ["Множитель кликов", "Усиливает ручные клики и автокликер.", ""],
+      boost: ["Буст x2 на 60 сек", "Временный ускоритель для рывка.", ""],
+      skinChristmas: ["Новогодний кот", "Скин: +15% к силе клика.", "Клики +15%"],
+      skinPopcorn: ["Попкорн-кот", "Скин: +20% к автокликеру.", "Автоклик +20%"],
+      skinNeon: ["Неоновый кот", "Скин: POP RUSH заряжается быстрее.", "Rush x2 заряд"],
+    },
+    quests: {
+      clicks: ["Клик-марафон", "Накликай по коту."],
+      earn: ["Копилка POP CAT", "Заработай монеты за всё время."],
+      buy: ["Шопоголик", "Купи улучшения в магазине."],
+    },
+  },
+  en: {
+    gameTitle: "PopCat Clicker",
+    tagline: "Click the cat, collect coins, and upgrade the meme machine.",
+    perClick: "Per click",
+    autoClick: "Auto click",
+    boost: "Boost",
+    none: "none",
+    active: "active",
+    questsTitle: "Quests",
+    shopButton: "POP CAT Shop",
+    rewardButton: "Watch ad: x2 clicks for 60 sec",
+    musicOn: "Turn music on",
+    musicOff: "Turn music off",
+    volume: "Volume",
+    shopTitle: "POP CAT Shop",
+    price: "Price",
+    level: "Level",
+    buyFor: "Buy for",
+    bought: "Bought",
+    wear: "Equip",
+    worn: "Equipped",
+    rebirthTitle: "Rebirth",
+    rebirthDescription: "Resets coins and regular upgrades, but permanently strengthens all clicks.",
+    rebirthButton: "Rebirth",
+    pause: "Paused",
+    ready: "Ready! Click the cat and collect coins.",
+    needMore: "Need {amount} more coins.",
+    maxed: "Already maxed out.",
+    equipped: "{name} equipped!",
+    boughtMessage: "{name} bought!",
+    rebirthDone: "Rebirth complete! All clicks are stronger.",
+    rush: "POP RUSH! x3 coins for 15 seconds!",
+    questNotReady: "Quest is not complete yet.",
+    questDone: "Quest complete! +{amount} coins.",
+    questsNext: "New quest set unlocked!",
+    rewardUnavailable: "Rewarded video is available only on Yandex Games.",
+    rewarded: "Reward received: x2 clicks for 60 seconds!",
+    rewardNotWatched: "Video was not completed, no reward granted.",
+    adUnavailable: "Ads are unavailable right now. Try again later.",
+    rewardPrefix: "Reward",
+    claimPrefix: "Claim",
+    claimed: "Claimed",
+    items: {
+      clickPower: ["+1 click", "Each tap gives more coins.", ""],
+      autoClicker: ["Auto-clicker", "Earns coins while the game is open.", ""],
+      multiplier: ["Click multiplier", "Boosts manual clicks and the auto-clicker.", ""],
+      boost: ["x2 boost for 60 sec", "A temporary speed-up for a good run.", ""],
+      skinChristmas: ["Holiday cat", "Skin: +15% click power.", "Clicks +15%"],
+      skinPopcorn: ["Popcorn cat", "Skin: +20% auto-clicker.", "Auto-click +20%"],
+      skinNeon: ["Neon cat", "Skin: POP RUSH charges faster.", "Rush x2 charge"],
+    },
+    quests: {
+      clicks: ["Click marathon", "Click the cat."],
+      earn: ["POP CAT bank", "Earn lifetime coins."],
+      buy: ["Shop fan", "Buy upgrades in the shop."],
+    },
+  },
+};
+
 const SHOP_ITEMS = [
-  {
-    id: "clickPower",
-    title: "+1 клик",
-    description: "Каждый тап приносит больше монет.",
-    icon: "Img/PopCatCoin.png",
-    basePrice: 25,
-    growth: 1.45,
-    maxLevel: 80,
-  },
-  {
-    id: "autoClicker",
-    title: "Авто-кликер",
-    description: "Сам добывает монеты, пока игра открыта.",
-    icon: "Img/2Xicon.png",
-    basePrice: 120,
-    growth: 1.55,
-    maxLevel: 50,
-  },
-  {
-    id: "multiplier",
-    title: "Множитель кликов",
-    description: "Усиливает ручные клики и автокликер.",
-    icon: "Img/PopCatBackground.png",
-    basePrice: 450,
-    growth: 1.9,
-    maxLevel: 25,
-  },
-  {
-    id: "boost",
-    title: "Буст x2 на 60 сек",
-    description: "Временный ускоритель для рывка.",
-    icon: "Img/2Xicon.png",
-    basePrice: 850,
-    growth: 1.7,
-    maxLevel: 99,
-  },
-  {
-    id: "skinChristmas",
-    title: "Новогодний кот",
-    description: "Скин: +15% к силе клика.",
-    icon: "Img/ChristmasPopCat.png",
-    basePrice: 1400,
-    growth: 1,
-    maxLevel: 1,
-    skin: "christmas",
-    bonus: "Клики +15%",
-  },
-  {
-    id: "skinPopcorn",
-    title: "Попкорн-кот",
-    description: "Скин: +20% к автокликеру.",
-    icon: "Img/PopCornPopCat.png",
-    basePrice: 2600,
-    growth: 1,
-    maxLevel: 1,
-    skin: "popcorn",
-    bonus: "Автоклик +20%",
-  },
-  {
-    id: "skinNeon",
-    title: "Неоновый кот",
-    description: "Скин: POP RUSH заряжается быстрее.",
-    icon: "Img/PopCatCoin.png",
-    basePrice: 5200,
-    growth: 1,
-    maxLevel: 1,
-    skin: "neon",
-    bonus: "Rush x2 заряд",
-  },
+  { id: "clickPower", icon: "Img/PopCatCoin.png", basePrice: 25, growth: 1.45, maxLevel: 80 },
+  { id: "autoClicker", icon: "Img/2Xicon.png", basePrice: 120, growth: 1.55, maxLevel: 50 },
+  { id: "multiplier", icon: "Img/PopCatBackground.png", basePrice: 450, growth: 1.9, maxLevel: 25 },
+  { id: "boost", icon: "Img/2Xicon.png", basePrice: 850, growth: 1.7, maxLevel: 99 },
+  { id: "skinChristmas", icon: "Img/ChristmasPopCat.png", basePrice: 1400, growth: 1, maxLevel: 1, skin: "christmas" },
+  { id: "skinPopcorn", icon: "Img/PopCornPopCat.png", basePrice: 2600, growth: 1, maxLevel: 1, skin: "popcorn" },
+  { id: "skinNeon", icon: "Img/PopCatCoin.png", basePrice: 5200, growth: 1, maxLevel: 1, skin: "neon" },
 ];
 
 const DEFAULT_STATE = {
@@ -89,6 +144,8 @@ const DEFAULT_STATE = {
   musicEnabled: false,
   volume: 0.7,
   selectedSkin: "default",
+  selectedLanguage: null,
+  manualLanguage: false,
   lastAdAt: 0,
   lastScoreAdStep: 0,
   boostEndsAt: 0,
@@ -130,14 +187,12 @@ const elements = {
   rebirthButton: document.getElementById("rebirthBtn"),
   rebirthPrice: document.getElementById("rebirthPriceValue"),
   pauseOverlay: document.getElementById("pauseOverlay"),
-  music: document.getElementById("bgMusic"),
-  popSound: document.getElementById("PopCatSound"),
-  knockSound: document.getElementById("Knock"),
 };
 
 let state = JSON.parse(JSON.stringify(DEFAULT_STATE));
 let ysdk = null;
 let player = null;
+let currentLanguage = "ru";
 let isPaused = false;
 let isAdOpen = false;
 let shopOpen = false;
@@ -146,15 +201,35 @@ let messageTimer = null;
 let catMouthOpen = false;
 let pendingInterstitialReason = null;
 
+const audio = createAudioManager();
+
+function t(key, vars = {}) {
+  const value = key.split(".").reduce((obj, part) => obj?.[part], I18N[currentLanguage]) ??
+    key.split(".").reduce((obj, part) => obj?.[part], I18N.ru) ??
+    key;
+  return String(value).replace(/\{(\w+)}/g, (_, name) => vars[name] ?? "");
+}
+
+function normalizeLanguage(lang) {
+  return String(lang || "").toLowerCase().startsWith("ru") ? "ru" : "en";
+}
+
+function applyTranslations() {
+  document.documentElement.lang = currentLanguage;
+  document.title = "PopCat Clicker";
+  document.querySelectorAll("[data-i18n]").forEach((node) => {
+    node.textContent = t(node.dataset.i18n);
+  });
+  elements.volume.setAttribute("aria-label", t("volume"));
+}
+
 function cloneDefaultState() {
   return JSON.parse(JSON.stringify(DEFAULT_STATE));
 }
 
 function normalizeSave(rawSave) {
   const clean = cloneDefaultState();
-  if (!rawSave || typeof rawSave !== "object") {
-    return clean;
-  }
+  if (!rawSave || typeof rawSave !== "object") return clean;
 
   clean.score = safeNumber(rawSave.score, 0);
   clean.totalClicks = safeNumber(rawSave.totalClicks, 0);
@@ -164,6 +239,8 @@ function normalizeSave(rawSave) {
   clean.musicEnabled = Boolean(rawSave.musicEnabled);
   clean.volume = clamp(safeNumber(rawSave.volume, 0.7), 0, 1);
   clean.selectedSkin = typeof rawSave.selectedSkin === "string" ? rawSave.selectedSkin : "default";
+  clean.selectedLanguage = typeof rawSave.selectedLanguage === "string" ? rawSave.selectedLanguage : null;
+  clean.manualLanguage = Boolean(rawSave.manualLanguage);
   clean.lastAdAt = safeNumber(rawSave.lastAdAt, 0);
   clean.lastScoreAdStep = safeNumber(rawSave.lastScoreAdStep, 0);
   clean.boostEndsAt = safeNumber(rawSave.boostEndsAt, 0);
@@ -191,7 +268,7 @@ function clamp(value, min, max) {
 }
 
 function formatNumber(value) {
-  return Math.floor(value).toLocaleString("ru-RU");
+  return Math.floor(value).toLocaleString(currentLanguage === "ru" ? "ru-RU" : "en-US");
 }
 
 function getItemConfig(id) {
@@ -204,10 +281,15 @@ function getUpgradeLevel(id) {
 
 function getPrice(item) {
   const level = getUpgradeLevel(item.id);
-  if (level >= item.maxLevel) {
-    return Infinity;
-  }
+  if (level >= item.maxLevel) return Infinity;
   return Math.floor(item.basePrice * Math.pow(item.growth, level));
+}
+
+function getActiveSkinBonus() {
+  if (state.selectedSkin === "christmas" && getUpgradeLevel("skinChristmas") > 0) return { click: 1.15, auto: 1, rushCharge: 1 };
+  if (state.selectedSkin === "popcorn" && getUpgradeLevel("skinPopcorn") > 0) return { click: 1, auto: 1.2, rushCharge: 1 };
+  if (state.selectedSkin === "neon" && getUpgradeLevel("skinNeon") > 0) return { click: 1, auto: 1, rushCharge: 2 };
+  return { click: 1, auto: 1, rushCharge: 1 };
 }
 
 function getClickValue() {
@@ -219,9 +301,7 @@ function getClickValue() {
 
 function getAutoClickPerSecond() {
   const autoLevel = getUpgradeLevel("autoClicker");
-  if (!autoLevel) {
-    return 0;
-  }
+  if (!autoLevel) return 0;
   const multiplier = 1 + getUpgradeLevel("multiplier") * 0.2;
   const rebirthBonus = 1 + state.rebirthCount * 0.3;
   return Math.floor(autoLevel * multiplier * rebirthBonus * getBoostMultiplier() * getActiveSkinBonus().auto);
@@ -237,49 +317,12 @@ function getRebirthPrice() {
   return Math.floor(25000 * Math.pow(2.25, state.rebirthCount));
 }
 
-function getActiveSkinBonus() {
-  if (state.selectedSkin === "christmas" && getUpgradeLevel("skinChristmas") > 0) {
-    return { click: 1.15, auto: 1, rushCharge: 1 };
-  }
-
-  if (state.selectedSkin === "popcorn" && getUpgradeLevel("skinPopcorn") > 0) {
-    return { click: 1, auto: 1.2, rushCharge: 1 };
-  }
-
-  if (state.selectedSkin === "neon" && getUpgradeLevel("skinNeon") > 0) {
-    return { click: 1, auto: 1, rushCharge: 2 };
-  }
-
-  return { click: 1, auto: 1, rushCharge: 1 };
-}
-
 function getQuests() {
   const round = state.questRound;
   return [
-    {
-      id: `clicks-${round}`,
-      title: "Клик-марафон",
-      description: "Накликай по коту.",
-      progress: state.totalClicks,
-      target: 200 + round * 150,
-      reward: 250 + round * 180,
-    },
-    {
-      id: `earn-${round}`,
-      title: "Копилка POP CAT",
-      description: "Заработай монеты за всё время.",
-      progress: state.totalEarned,
-      target: Math.floor(3000 * Math.pow(1.55, round)),
-      reward: 600 + round * 420,
-    },
-    {
-      id: `buy-${round}`,
-      title: "Шопоголик",
-      description: "Купи улучшения в магазине.",
-      progress: state.totalPurchases,
-      target: 4 + round * 2,
-      reward: 450 + round * 320,
-    },
+    { id: `clicks-${round}`, type: "clicks", progress: state.totalClicks, target: 200 + round * 150, reward: 250 + round * 180 },
+    { id: `earn-${round}`, type: "earn", progress: state.totalEarned, target: Math.floor(3000 * Math.pow(1.55, round)), reward: 600 + round * 420 },
+    { id: `buy-${round}`, type: "buy", progress: state.totalPurchases, target: 4 + round * 2, reward: 450 + round * 320 },
   ];
 }
 
@@ -289,23 +332,21 @@ function isQuestClaimed(questId) {
 
 function claimQuest(questId) {
   const quest = getQuests().find((item) => item.id === questId);
-  if (!quest || isQuestClaimed(quest.id)) {
-    return;
-  }
+  if (!quest || isQuestClaimed(quest.id)) return;
 
   if (quest.progress < quest.target) {
-    showMessage("Задание ещё не выполнено.");
+    showMessage(t("questNotReady"));
     return;
   }
 
   state.claimedQuests.push(quest.id);
   state.score += quest.reward;
-  showMessage(`Задание выполнено! +${formatNumber(quest.reward)} монет.`);
+  showMessage(t("questDone", { amount: formatNumber(quest.reward) }));
 
   if (getQuests().every((item) => state.claimedQuests.includes(item.id))) {
     state.questRound += 1;
     state.claimedQuests = [];
-    showMessage("Новый набор заданий открыт!");
+    showMessage(t("questsNext"));
   }
 
   updateUi();
@@ -323,7 +364,7 @@ function addScore(amount) {
 
 function spendScore(price) {
   if (state.score < price) {
-    showMessage(`Нужно ещё ${formatNumber(price - state.score)} монет.`);
+    showMessage(t("needMore", { amount: formatNumber(price - state.score) }));
     return false;
   }
   state.score -= price;
@@ -331,14 +372,13 @@ function spendScore(price) {
 }
 
 function handleCatClick() {
-  if (isPaused || isAdOpen) {
-    return;
-  }
+  if (isPaused || isAdOpen) return;
 
+  audio.unlock();
   const amount = getClickValue();
   catMouthOpen = !catMouthOpen;
   applyCatImage();
-  playClickSound();
+  audio.play("pop");
   chargeRush();
   addScore(amount);
   state.totalClicks += 1;
@@ -346,55 +386,46 @@ function handleCatClick() {
 }
 
 function chargeRush() {
-  if (Date.now() < state.rushEndsAt) {
-    return;
-  }
+  if (Date.now() < state.rushEndsAt) return;
 
   state.rushCharge = clamp(state.rushCharge + getActiveSkinBonus().rushCharge, 0, RUSH_MAX_CHARGE);
   if (state.rushCharge >= RUSH_MAX_CHARGE) {
     state.rushCharge = 0;
     state.rushEndsAt = Date.now() + RUSH_DURATION;
-    showMessage("POP RUSH! x3 ко всем монетам на 15 секунд!");
+    showMessage(t("rush"));
   }
 }
 
 function buyUpgrade(itemId) {
   const item = getItemConfig(itemId);
-  if (!item) {
-    return;
-  }
+  if (!item) return;
 
   const level = getUpgradeLevel(item.id);
+  const text = getShopText(item.id);
   if (item.skin && level >= item.maxLevel) {
     state.selectedSkin = item.skin;
     catMouthOpen = false;
-    showMessage(`${item.title} надет!`);
+    showMessage(t("equipped", { name: text.title }));
     updateUi();
     scheduleSave(true);
     return;
   }
 
   if (level >= item.maxLevel) {
-    showMessage("Уже куплено по максимуму.");
+    showMessage(t("maxed"));
     return;
   }
 
   const price = getPrice(item);
-  if (!spendScore(price)) {
-    return;
-  }
+  if (!spendScore(price)) return;
 
   state.upgrades[item.id] = level + 1;
   state.totalPurchases += 1;
-  if (item.skin) {
-    state.selectedSkin = item.skin;
-  }
-  if (item.id === "boost") {
-    activateBoost(60000);
-  }
+  if (item.skin) state.selectedSkin = item.skin;
+  if (item.id === "boost") activateBoost(60000);
 
-  playKnockSound();
-  showMessage(`${item.title} куплено!`);
+  audio.play("knock");
+  showMessage(t("boughtMessage", { name: text.title }));
   updateUi();
   scheduleSave(true);
 }
@@ -405,23 +436,24 @@ function activateBoost(durationMs) {
 
 function rebirth() {
   const price = getRebirthPrice();
-  if (!spendScore(price)) {
-    return;
-  }
+  if (!spendScore(price)) return;
 
   state.score = 0;
   state.rebirthCount += 1;
   state.boostEndsAt = 0;
   Object.keys(state.upgrades).forEach((key) => {
-    if (!key.startsWith("skin")) {
-      state.upgrades[key] = 0;
-    }
+    if (!key.startsWith("skin")) state.upgrades[key] = 0;
   });
   catMouthOpen = false;
 
-  showMessage("Перерождение готово! Все клики стали сильнее.");
+  showMessage(t("rebirthDone"));
   updateUi();
   scheduleSave(true);
+}
+
+function getShopText(id) {
+  const value = I18N[currentLanguage].items[id] || I18N.ru.items[id];
+  return { title: value[0], description: value[1], bonus: value[2] };
 }
 
 function renderShop() {
@@ -431,22 +463,23 @@ function renderShop() {
     const price = getPrice(item);
     const isMaxed = level >= item.maxLevel;
     const isSelectedSkin = item.skin && state.selectedSkin === item.skin;
+    const text = getShopText(item.id);
     const buttonText = isSelectedSkin
-      ? "Надето"
+      ? t("worn")
       : isMaxed && item.skin
-        ? "Надеть"
+        ? t("wear")
         : isMaxed
-          ? "Куплено"
-          : `Купить за ${formatNumber(price)}`;
+          ? t("bought")
+          : `${t("buyFor")} ${formatNumber(price)}`;
     const card = document.createElement("article");
     card.className = "shop-item";
     card.innerHTML = `
-      <img src="${item.icon}" alt="">
+      <img src="${item.icon}" alt="" draggable="false">
       <div class="shop-copy">
-        <h3>${item.title}</h3>
-        <p>${item.description}</p>
-        ${item.bonus ? `<em>${item.bonus}</em>` : ""}
-        <span>Уровень: ${level}${item.maxLevel < 90 ? `/${item.maxLevel}` : ""}</span>
+        <h3>${text.title}</h3>
+        <p>${text.description}</p>
+        ${text.bonus ? `<em>${text.bonus}</em>` : ""}
+        <span>${t("level")}: ${level}${item.maxLevel < 90 ? `/${item.maxLevel}` : ""}</span>
       </div>
       <button class="buy" data-buy="${item.id}" ${isSelectedSkin || (isMaxed && !item.skin) ? "disabled" : ""}>
         ${buttonText}
@@ -457,27 +490,24 @@ function renderShop() {
 }
 
 function renderQuests() {
-  if (!elements.quests) {
-    return;
-  }
-
   elements.quests.innerHTML = "";
   getQuests().forEach((quest) => {
     const progress = Math.min(quest.progress, quest.target);
     const percent = Math.min(100, (progress / quest.target) * 100);
     const claimed = isQuestClaimed(quest.id);
     const complete = quest.progress >= quest.target;
+    const [title, description] = I18N[currentLanguage].quests[quest.type] || I18N.ru.quests[quest.type];
     const card = document.createElement("article");
     card.className = "quest-card";
     card.innerHTML = `
       <div class="quest-copy">
-        <h3>${quest.title}</h3>
-        <p>${quest.description}</p>
+        <h3>${title}</h3>
+        <p>${description}</p>
         <span>${formatNumber(progress)} / ${formatNumber(quest.target)}</span>
       </div>
       <div class="quest-bar"><div style="width: ${percent}%"></div></div>
       <button class="quest-claim" data-quest="${quest.id}" ${claimed || !complete ? "disabled" : ""}>
-        ${claimed ? "Забрано" : complete ? `Забрать +${formatNumber(quest.reward)}` : `Награда +${formatNumber(quest.reward)}`}
+        ${claimed ? t("claimed") : complete ? `${t("claimPrefix")} +${formatNumber(quest.reward)}` : `${t("rewardPrefix")} +${formatNumber(quest.reward)}`}
       </button>
     `;
     elements.quests.appendChild(card);
@@ -487,25 +517,19 @@ function renderQuests() {
 function updateUi() {
   elements.score.textContent = formatNumber(state.score);
   elements.clickPower.textContent = formatNumber(getClickValue());
-  elements.autoClick.textContent = `${formatNumber(getAutoClickPerSecond())}/с`;
+  elements.autoClick.textContent = `${formatNumber(getAutoClickPerSecond())}/${currentLanguage === "ru" ? "с" : "s"}`;
   elements.volume.value = String(state.volume);
-  elements.music.volume = state.volume;
-  elements.popSound.volume = state.volume;
-  elements.knockSound.volume = state.volume;
-  elements.playButton.textContent = state.musicEnabled ? "Выключить музыку" : "Включить музыку";
+  elements.playButton.textContent = state.musicEnabled ? t("musicOff") : t("musicOn");
   elements.rebirthPrice.textContent = formatNumber(getRebirthPrice());
+  audio.setVolume(state.volume);
 
   const boostLeft = Math.max(0, state.boostEndsAt - Date.now());
   const rushLeft = Math.max(0, state.rushEndsAt - Date.now());
   const activeBoosts = [];
-  if (boostLeft > 0) {
-    activeBoosts.push(`x2 ${Math.ceil(boostLeft / 1000)}с`);
-  }
-  if (rushLeft > 0) {
-    activeBoosts.push(`RUSH x3 ${Math.ceil(rushLeft / 1000)}с`);
-  }
-  elements.boost.textContent = activeBoosts.length ? activeBoosts.join(" + ") : "нет";
-  elements.rush.textContent = rushLeft > 0 ? "активен" : `${Math.floor(state.rushCharge)}/${RUSH_MAX_CHARGE}`;
+  if (boostLeft > 0) activeBoosts.push(`x2 ${Math.ceil(boostLeft / 1000)}${currentLanguage === "ru" ? "с" : "s"}`);
+  if (rushLeft > 0) activeBoosts.push(`RUSH x3 ${Math.ceil(rushLeft / 1000)}${currentLanguage === "ru" ? "с" : "s"}`);
+  elements.boost.textContent = activeBoosts.length ? activeBoosts.join(" + ") : t("none");
+  elements.rush.textContent = rushLeft > 0 ? t("active") : `${Math.floor(state.rushCharge)}/${RUSH_MAX_CHARGE}`;
   elements.rushFill.style.width = rushLeft > 0 ? "100%" : `${(state.rushCharge / RUSH_MAX_CHARGE) * 100}%`;
 
   applyCatImage();
@@ -522,15 +546,9 @@ function applyCatImage() {
     closedImage = "Img/ChristmasPopCat.png";
     openImage = "Img/PopCatPop.png";
   }
-
   if (state.selectedSkin === "popcorn" && getUpgradeLevel("skinPopcorn") > 0) {
     closedImage = "Img/PopCat.png";
     openImage = "Img/PopCornPopCat.png";
-  }
-
-  if (state.selectedSkin === "neon" && getUpgradeLevel("skinNeon") > 0) {
-    closedImage = "Img/PopCat.png";
-    openImage = "Img/PopCatPop.png";
   }
 
   elements.cat.src = catMouthOpen ? openImage : closedImage;
@@ -547,30 +565,11 @@ function showMessage(text) {
   clearTimeout(messageTimer);
   elements.message.textContent = text;
   elements.message.classList.add("visible");
-  messageTimer = setTimeout(() => {
-    elements.message.classList.remove("visible");
-  }, 2400);
-}
-
-function playClickSound() {
-  try {
-    elements.popSound.currentTime = 0;
-    elements.popSound.play().catch(() => {});
-  } catch (error) {
-    // Audio playback may be blocked before the first user gesture.
-  }
-}
-
-function playKnockSound() {
-  try {
-    elements.knockSound.currentTime = 0;
-    elements.knockSound.play().catch(() => {});
-  } catch (error) {
-    // Non-critical effect sound.
-  }
+  messageTimer = setTimeout(() => elements.message.classList.remove("visible"), 2400);
 }
 
 function toggleMusic() {
+  audio.unlock();
   state.musicEnabled = !state.musicEnabled;
   updateMusic();
   updateUi();
@@ -578,14 +577,10 @@ function toggleMusic() {
 }
 
 function updateMusic() {
-  elements.music.volume = state.volume;
   if (state.musicEnabled && !isPaused && !isAdOpen && !document.hidden) {
-    elements.music.play().catch(() => {
-      state.musicEnabled = false;
-      updateUi();
-    });
+    audio.startMusic();
   } else {
-    elements.music.pause();
+    audio.stopMusic();
   }
 }
 
@@ -596,7 +591,7 @@ function setPaused(paused, reason = "manual") {
 
   if (paused) {
     callGameplayStop();
-    elements.music.pause();
+    audio.stopMusic();
   } else {
     callGameplayStart();
     updateMusic();
@@ -621,17 +616,26 @@ function closeShop() {
 }
 
 async function initYandexSdk() {
-  if (!window.YaGames || typeof window.YaGames.init !== "function") {
-    return;
-  }
+  await loadYandexSdkScript();
+  if (!window.YaGames || typeof window.YaGames.init !== "function") return;
 
   try {
     ysdk = await window.YaGames.init();
+
+    // Language is selected from SDK on first launch, but a saved manual choice would win.
+    const sdkLanguage = normalizeLanguage(ysdk?.environment?.i18n?.lang);
+    if (!state.manualLanguage) {
+      currentLanguage = sdkLanguage;
+      state.selectedLanguage = sdkLanguage;
+    }
+
     try {
       player = await ysdk.getPlayer();
       const cloudData = await player.getData([SAVE_KEY]);
       if (cloudData && cloudData[SAVE_KEY]) {
         state = normalizeSave(cloudData[SAVE_KEY]);
+        currentLanguage = state.manualLanguage && state.selectedLanguage ? normalizeLanguage(state.selectedLanguage) : sdkLanguage;
+        state.selectedLanguage = currentLanguage;
       }
     } catch (error) {
       player = null;
@@ -641,28 +645,37 @@ async function initYandexSdk() {
   }
 }
 
+function loadYandexSdkScript() {
+  if (window.YaGames || location.protocol === "file:") {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "/sdk.js";
+    script.async = true;
+    script.onload = resolve;
+    script.onerror = resolve;
+    document.head.appendChild(script);
+  });
+}
+
 function callLoadingReady() {
   try {
     ysdk?.features?.LoadingAPI?.ready();
-  } catch (error) {
-    // SDK calls must never break local or offline gameplay.
-  }
+  } catch (error) {}
 }
 
 function callGameplayStart() {
   try {
     ysdk?.features?.GameplayAPI?.start();
-  } catch (error) {
-    // Ignore SDK transport errors.
-  }
+  } catch (error) {}
 }
 
 function callGameplayStop() {
   try {
     ysdk?.features?.GameplayAPI?.stop();
-  } catch (error) {
-    // Ignore SDK transport errors.
-  }
+  } catch (error) {}
 }
 
 function canShowInterstitial() {
@@ -678,9 +691,7 @@ function maybeShowScoreAd() {
 }
 
 function maybeShowInterstitial(reason) {
-  if (!canShowInterstitial()) {
-    return;
-  }
+  if (!canShowInterstitial()) return;
 
   isAdOpen = true;
   state.lastAdAt = Date.now();
@@ -696,29 +707,23 @@ function maybeShowInterstitial(reason) {
         },
         onClose: () => {
           isAdOpen = false;
-          if (!shopOpen && !document.hidden) {
-            setPaused(false, reason);
-          }
+          if (!shopOpen && !document.hidden) setPaused(false, reason);
         },
         onError: () => {
           isAdOpen = false;
-          if (!shopOpen && !document.hidden) {
-            setPaused(false, reason);
-          }
+          if (!shopOpen && !document.hidden) setPaused(false, reason);
         },
       },
     });
   } catch (error) {
     isAdOpen = false;
-    if (!shopOpen && !document.hidden) {
-      setPaused(false, reason);
-    }
+    if (!shopOpen && !document.hidden) setPaused(false, reason);
   }
 }
 
 function showRewardedVideo() {
   if (!ysdk?.adv?.showRewardedVideo) {
-    showMessage("Видео-реклама доступна только на Яндекс Играх.");
+    showMessage(t("rewardUnavailable"));
     return;
   }
 
@@ -736,34 +741,26 @@ function showRewardedVideo() {
         onRewarded: () => {
           rewarded = true;
           activateBoost(60000);
-          showMessage("Награда получена: x2 клики на 60 секунд!");
+          showMessage(t("rewarded"));
           updateUi();
           scheduleSave(true);
         },
         onClose: () => {
           isAdOpen = false;
-          if (!rewarded) {
-            showMessage("Видео не досмотрено, награда не выдана.");
-          }
-          if (!shopOpen && !document.hidden) {
-            setPaused(false, "rewarded");
-          }
+          if (!rewarded) showMessage(t("rewardNotWatched"));
+          if (!shopOpen && !document.hidden) setPaused(false, "rewarded");
         },
         onError: () => {
           isAdOpen = false;
-          showMessage("Реклама сейчас недоступна. Попробуй позже.");
-          if (!shopOpen && !document.hidden) {
-            setPaused(false, "rewarded");
-          }
+          showMessage(t("adUnavailable"));
+          if (!shopOpen && !document.hidden) setPaused(false, "rewarded");
         },
       },
     });
   } catch (error) {
     isAdOpen = false;
-    showMessage("Реклама сейчас недоступна. Попробуй позже.");
-    if (!shopOpen && !document.hidden) {
-      setPaused(false, "rewarded");
-    }
+    showMessage(t("adUnavailable"));
+    if (!shopOpen && !document.hidden) setPaused(false, "rewarded");
   }
 }
 
@@ -774,29 +771,24 @@ function loadLocalSave() {
   } catch (error) {
     state = cloneDefaultState();
   }
+  currentLanguage = normalizeLanguage(state.selectedLanguage || "ru");
 }
 
 function saveLocal() {
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify(state));
-  } catch (error) {
-    // Some browsers may block storage. The game should continue anyway.
-  }
+  } catch (error) {}
 }
 
 function saveCloud(flush = false) {
-  if (!player?.setData) {
-    return;
-  }
-
+  if (!player?.setData) return;
   try {
     player.setData({ [SAVE_KEY]: state }, flush).catch(() => {});
-  } catch (error) {
-    // Cloud save is optional; localStorage remains the fallback.
-  }
+  } catch (error) {}
 }
 
 function scheduleSave(flush = false) {
+  state.selectedLanguage = currentLanguage;
   saveLocal();
   clearTimeout(cloudSaveTimer);
   cloudSaveTimer = setTimeout(() => saveCloud(flush), flush ? 0 : CLOUD_SAVE_DELAY);
@@ -804,30 +796,19 @@ function scheduleSave(flush = false) {
 
 function startAutoClicker() {
   setInterval(() => {
-    if (isPaused || isAdOpen) {
-      return;
-    }
+    if (isPaused || isAdOpen) return;
     const perSecond = getAutoClickPerSecond();
-    if (perSecond > 0) {
-      addScore(perSecond);
-    }
+    if (perSecond > 0) addScore(perSecond);
   }, 1000);
 }
 
 function startBoostTicker() {
-  setInterval(() => {
-    updateUi();
-  }, 1000);
+  setInterval(() => updateUi(), 1000);
 }
 
 function waitForPageLoad() {
-  if (document.readyState === "complete") {
-    return Promise.resolve();
-  }
-
-  return new Promise((resolve) => {
-    window.addEventListener("load", resolve, { once: true });
-  });
+  if (document.readyState === "complete") return Promise.resolve();
+  return new Promise((resolve) => window.addEventListener("load", resolve, { once: true }));
 }
 
 function bindEvents() {
@@ -839,30 +820,25 @@ function bindEvents() {
   elements.rewardButton.addEventListener("click", showRewardedVideo);
 
   elements.volume.addEventListener("input", () => {
+    audio.unlock();
     state.volume = clamp(Number(elements.volume.value), 0, 1);
-    updateMusic();
+    audio.setVolume(state.volume);
     updateUi();
     scheduleSave();
   });
 
   elements.shopItems.addEventListener("click", (event) => {
     const button = event.target.closest("[data-buy]");
-    if (button) {
-      buyUpgrade(button.dataset.buy);
-    }
+    if (button) buyUpgrade(button.dataset.buy);
   });
 
-  elements.quests?.addEventListener("click", (event) => {
+  elements.quests.addEventListener("click", (event) => {
     const button = event.target.closest("[data-quest]");
-    if (button) {
-      claimQuest(button.dataset.quest);
-    }
+    if (button) claimQuest(button.dataset.quest);
   });
 
   elements.shopOverlay.addEventListener("click", (event) => {
-    if (event.target === elements.shopOverlay) {
-      closeShop();
-    }
+    if (event.target === elements.shopOverlay) closeShop();
   });
 
   document.addEventListener("visibilitychange", () => {
@@ -873,33 +849,136 @@ function bindEvents() {
       setPaused(false, "hidden");
     }
   });
-
   window.addEventListener("blur", () => {
     setPaused(true, "blur");
     scheduleSave(true);
   });
-
   window.addEventListener("focus", () => {
-    if (!shopOpen && !isAdOpen && !document.hidden) {
-      setPaused(false, "focus");
-    }
+    if (!shopOpen && !isAdOpen && !document.hidden) setPaused(false, "focus");
   });
-
   window.addEventListener("pagehide", () => scheduleSave(true));
 }
 
+function lockBrowserGestures() {
+  const prevent = (event) => event.preventDefault();
+  document.addEventListener("contextmenu", prevent);
+  document.addEventListener("selectstart", prevent);
+  document.addEventListener("dragstart", prevent);
+  document.addEventListener("wheel", prevent, { passive: false });
+
+  // Keep the page fixed in the iframe and still allow dragging the volume range.
+  document.addEventListener("touchmove", (event) => {
+    if (event.target.closest("input[type='range']")) return;
+    if (event.target.closest(".hud, .modal-panel")) return;
+    event.preventDefault();
+  }, { passive: false });
+}
+
+function createAudioManager() {
+  let context = null;
+  let masterGain = null;
+  let musicGain = null;
+  let musicSource = null;
+  let currentVolume = 0.7;
+  const buffers = {};
+  const urls = {
+    music: "Sound/Music.mp3",
+    pop: "Sound/PopCatSound.mp3",
+    knock: "Sound/Knock.mp3",
+  };
+
+  function ensureContext() {
+    if (!context) {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return null;
+      context = new AudioContext();
+      masterGain = context.createGain();
+      musicGain = context.createGain();
+      masterGain.gain.value = currentVolume;
+      musicGain.gain.value = 0.55;
+      musicGain.connect(masterGain);
+      masterGain.connect(context.destination);
+      loadBuffers();
+    }
+    if (context.state === "suspended") context.resume().catch(() => {});
+    return context;
+  }
+
+  // Web Audio buffers keep game sound inside the canvas-like app experience.
+  async function loadBuffers() {
+    await Promise.all(Object.entries(urls).map(async ([name, url]) => {
+      try {
+        const response = await fetch(url);
+        const bytes = await response.arrayBuffer();
+        buffers[name] = await context.decodeAudioData(bytes);
+      } catch (error) {
+        buffers[name] = null;
+      }
+    }));
+    if (state.musicEnabled && !isPaused && !isAdOpen && !document.hidden) {
+      startMusic();
+    }
+  }
+
+  function play(name) {
+    const ctx = ensureContext();
+    const buffer = buffers[name];
+    if (!ctx || !buffer) return;
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(masterGain);
+    source.start(0);
+  }
+
+  function startMusic() {
+    const ctx = ensureContext();
+    if (!ctx || musicSource || !buffers.music) return;
+    musicSource = ctx.createBufferSource();
+    musicSource.buffer = buffers.music;
+    musicSource.loop = true;
+    musicSource.connect(musicGain);
+    musicSource.onended = () => {
+      musicSource = null;
+    };
+    musicSource.start(0);
+  }
+
+  function stopMusic() {
+    if (!musicSource) return;
+    try {
+      musicSource.stop();
+    } catch (error) {}
+    musicSource.disconnect();
+    musicSource = null;
+  }
+
+  return {
+    unlock: ensureContext,
+    play,
+    startMusic,
+    stopMusic,
+    setVolume(value) {
+      currentVolume = clamp(value, 0, 1);
+      if (masterGain) masterGain.gain.value = currentVolume;
+    },
+  };
+}
+
 async function startGame() {
+  lockBrowserGestures();
   loadLocalSave();
   bindEvents();
+  applyTranslations();
   updateUi();
   startAutoClicker();
   startBoostTicker();
   await initYandexSdk();
   await waitForPageLoad();
+  applyTranslations();
   updateUi();
   callLoadingReady();
   callGameplayStart();
-  showMessage("Готово! Кликай по коту и собирай монеты.");
+  showMessage(t("ready"));
 }
 
 startGame();
