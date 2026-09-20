@@ -55,9 +55,9 @@ const I18N = {
       autoClicker: ["Авто-кликер", "Сам добывает монеты, пока игра открыта.", ""],
       multiplier: ["Множитель кликов", "Усиливает ручные клики и автокликер.", ""],
       boost: ["Буст x2 на 60 сек", "Временный ускоритель для рывка.", ""],
+      skinDefault: ["Обычный кот", "Классический POP CAT. Всегда под рукой.", "Классика"],
       skinChristmas: ["Новогодний кот", "Скин: +15% к силе клика.", "Клики +15%"],
       skinPopcorn: ["Попкорн-кот", "Скин: +20% к автокликеру.", "Автоклик +20%"],
-      skinNeon: ["Неоновый кот", "Скин: POP RUSH заряжается быстрее.", "Rush x2 заряд"],
     },
     quests: {
       clicks: ["Клик-марафон", "Накликай по коту."],
@@ -112,9 +112,9 @@ const I18N = {
       autoClicker: ["Auto-clicker", "Earns coins while the game is open.", ""],
       multiplier: ["Click multiplier", "Boosts manual clicks and the auto-clicker.", ""],
       boost: ["x2 boost for 60 sec", "A temporary speed-up for a good run.", ""],
+      skinDefault: ["Classic Cat", "The classic POP CAT. Always available.", "Classic"],
       skinChristmas: ["Holiday cat", "Skin: +15% click power.", "Clicks +15%"],
       skinPopcorn: ["Popcorn cat", "Skin: +20% auto-clicker.", "Auto-click +20%"],
-      skinNeon: ["Neon cat", "Skin: POP RUSH charges faster.", "Rush x2 charge"],
     },
     quests: {
       clicks: ["Click marathon", "Click the cat."],
@@ -129,9 +129,9 @@ const SHOP_ITEMS = [
   { id: "autoClicker", icon: "Img/2Xicon.png", basePrice: 120, growth: 1.55, maxLevel: 50 },
   { id: "multiplier", icon: "Img/PopCatBackground.png", basePrice: 450, growth: 1.9, maxLevel: 25 },
   { id: "boost", icon: "Img/2Xicon.png", basePrice: 850, growth: 1.7, maxLevel: 99 },
+  { id: "skinDefault", icon: "Img/PopCat.png", basePrice: 0, growth: 1, maxLevel: 1, skin: "default" },
   { id: "skinChristmas", icon: "Img/ChristmasPopCat.png", basePrice: 1400, growth: 1, maxLevel: 1, skin: "christmas" },
   { id: "skinPopcorn", icon: "Img/PopCornPopCat.png", basePrice: 2600, growth: 1, maxLevel: 1, skin: "popcorn" },
-  { id: "skinNeon", icon: "Img/PopCatCoin.png", basePrice: 5200, growth: 1, maxLevel: 1, skin: "neon" },
 ];
 
 const DEFAULT_STATE = {
@@ -158,9 +158,9 @@ const DEFAULT_STATE = {
     autoClicker: 0,
     multiplier: 0,
     boost: 0,
+    skinDefault: 1,
     skinChristmas: 0,
     skinPopcorn: 0,
-    skinNeon: 0,
   },
 };
 
@@ -187,12 +187,14 @@ const elements = {
   rebirthButton: document.getElementById("rebirthBtn"),
   rebirthPrice: document.getElementById("rebirthPriceValue"),
   pauseOverlay: document.getElementById("pauseOverlay"),
+  langBtn: document.getElementById("langBtn"),
 };
 
 let state = JSON.parse(JSON.stringify(DEFAULT_STATE));
 let ysdk = null;
 let player = null;
 let currentLanguage = "ru";
+let sessionManualLanguage = false;
 let isPaused = false;
 let isAdOpen = false;
 let shopOpen = false;
@@ -211,16 +213,57 @@ function t(key, vars = {}) {
 }
 
 function normalizeLanguage(lang) {
-  return String(lang || "").toLowerCase().startsWith("ru") ? "ru" : "en";
+  if (!lang) return "ru";
+  const code = String(lang).trim().toLowerCase().slice(0, 2);
+  // CIS languages default to Russian
+  if (["ru", "be", "kk", "uk", "uz", "ky", "tg", "hy", "az"].includes(code)) {
+    return "ru";
+  }
+  // All other international languages (it, en, de, tr, fr, es, etc.) default to English
+  return "en";
+}
+
+function detectPreferredLanguage() {
+  // 1. URL search param (Yandex moderation / debug harnesses pass ?lang=...)
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const urlLang = params.get("lang");
+    if (urlLang) return normalizeLanguage(urlLang);
+  } catch (e) {}
+
+  // 2. Yandex SDK environment language if already available
+  if (ysdk?.environment?.i18n?.lang) {
+    return normalizeLanguage(ysdk.environment.i18n.lang);
+  }
+
+  // 3. User manual choice from state if set
+  if (state.manualLanguage && state.selectedLanguage) {
+    return normalizeLanguage(state.selectedLanguage);
+  }
+
+  // 4. Browser language
+  if (navigator.language || navigator.userLanguage) {
+    return normalizeLanguage(navigator.language || navigator.userLanguage);
+  }
+
+  return "ru";
 }
 
 function applyTranslations() {
   document.documentElement.lang = currentLanguage;
   document.title = "PopCat Clicker";
+  if (elements.langBtn) {
+    elements.langBtn.textContent = currentLanguage.toUpperCase();
+    elements.langBtn.setAttribute("aria-label", currentLanguage === "ru" ? "Сменить язык" : "Switch language");
+  }
   document.querySelectorAll("[data-i18n]").forEach((node) => {
     node.textContent = t(node.dataset.i18n);
   });
-  elements.volume.setAttribute("aria-label", t("volume"));
+  if (elements.volume) {
+    elements.volume.setAttribute("aria-label", t("volume"));
+  }
+  renderShop();
+  renderQuests();
 }
 
 function cloneDefaultState() {
@@ -253,6 +296,10 @@ function normalizeSave(rawSave) {
     Object.keys(clean.upgrades).forEach((key) => {
       clean.upgrades[key] = Math.max(0, Math.floor(safeNumber(rawSave.upgrades[key], 0)));
     });
+  }
+  clean.upgrades.skinDefault = 1;
+  if (clean.selectedSkin === "neon") {
+    clean.selectedSkin = "default";
   }
 
   return clean;
@@ -288,7 +335,6 @@ function getPrice(item) {
 function getActiveSkinBonus() {
   if (state.selectedSkin === "christmas" && getUpgradeLevel("skinChristmas") > 0) return { click: 1.15, auto: 1, rushCharge: 1 };
   if (state.selectedSkin === "popcorn" && getUpgradeLevel("skinPopcorn") > 0) return { click: 1, auto: 1.2, rushCharge: 1 };
-  if (state.selectedSkin === "neon" && getUpgradeLevel("skinNeon") > 0) return { click: 1, auto: 1, rushCharge: 2 };
   return { click: 1, auto: 1, rushCharge: 1 };
 }
 
@@ -622,11 +668,13 @@ async function initYandexSdk() {
   try {
     ysdk = await window.YaGames.init();
 
-    // Language is selected from SDK on first launch, but a saved manual choice would win.
-    const sdkLanguage = normalizeLanguage(ysdk?.environment?.i18n?.lang);
-    if (!state.manualLanguage) {
-      currentLanguage = sdkLanguage;
-      state.selectedLanguage = sdkLanguage;
+    // Auto-detect language via SDK environment (Requirement 2.14)
+    if (!sessionManualLanguage) {
+      const preferred = detectPreferredLanguage();
+      currentLanguage = preferred;
+      state.selectedLanguage = preferred;
+      applyTranslations();
+      updateUi();
     }
 
     try {
@@ -634,8 +682,12 @@ async function initYandexSdk() {
       const cloudData = await player.getData([SAVE_KEY]);
       if (cloudData && cloudData[SAVE_KEY]) {
         state = normalizeSave(cloudData[SAVE_KEY]);
-        currentLanguage = state.manualLanguage && state.selectedLanguage ? normalizeLanguage(state.selectedLanguage) : sdkLanguage;
-        state.selectedLanguage = currentLanguage;
+        if (!sessionManualLanguage) {
+          currentLanguage = detectPreferredLanguage();
+          state.selectedLanguage = currentLanguage;
+        }
+        applyTranslations();
+        updateUi();
       }
     } catch (error) {
       player = null;
@@ -819,6 +871,19 @@ function bindEvents() {
   elements.playButton.addEventListener("click", toggleMusic);
   elements.rewardButton.addEventListener("click", showRewardedVideo);
 
+  if (elements.langBtn) {
+    elements.langBtn.addEventListener("click", () => {
+      sessionManualLanguage = true;
+      state.manualLanguage = true;
+      currentLanguage = currentLanguage === "ru" ? "en" : "ru";
+      state.selectedLanguage = currentLanguage;
+      applyTranslations();
+      updateUi();
+      scheduleSave(true);
+      showMessage(currentLanguage === "ru" ? "Язык: Русский" : "Language: English");
+    });
+  }
+
   elements.volume.addEventListener("input", () => {
     audio.unlock();
     state.volume = clamp(Number(elements.volume.value), 0, 1);
@@ -860,18 +925,88 @@ function bindEvents() {
 }
 
 function lockBrowserGestures() {
-  const prevent = (event) => event.preventDefault();
-  document.addEventListener("contextmenu", prevent);
-  document.addEventListener("selectstart", prevent);
-  document.addEventListener("dragstart", prevent);
-  document.addEventListener("wheel", prevent, { passive: false });
+  const prevent = (event) => {
+    event.preventDefault();
+    return false;
+  };
 
-  // Keep the page fixed in the iframe and still allow dragging the volume range.
+  // Block context menus everywhere (Desktop right click & Mobile long press)
+  window.addEventListener("contextmenu", prevent, { capture: true });
+  document.addEventListener("contextmenu", prevent, { capture: true });
+
+  // Block text selection start
+  window.addEventListener("selectstart", prevent, { capture: true });
+  document.addEventListener("selectstart", prevent, { capture: true });
+
+  // Block drag & drop gestures
+  window.addEventListener("dragstart", prevent, { capture: true });
+  document.addEventListener("dragstart", prevent, { capture: true });
+
+  // Remove any stray text selection range
+  document.addEventListener("selectionchange", () => {
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0) {
+      sel.removeAllRanges();
+    }
+  });
+
+  // Block mouse wheel zooming and page scroll
+  window.addEventListener("wheel", (event) => {
+    if (!event.target.closest(".hud, .modal-panel, .shop-items")) {
+      event.preventDefault();
+    }
+  }, { passive: false });
+
+  // Block swipe-to-refresh and rubber-banding on iOS/Android while preserving inner scroll
+  let touchStartY = 0;
+  document.addEventListener("touchstart", (event) => {
+    if (event.touches && event.touches.length > 0) {
+      touchStartY = event.touches[0].clientY;
+    }
+  }, { passive: true });
+
   document.addEventListener("touchmove", (event) => {
     if (event.target.closest("input[type='range']")) return;
-    if (event.target.closest(".hud, .modal-panel")) return;
-    event.preventDefault();
+
+    const scrollable = event.target.closest(".hud, .modal-panel, .shop-items");
+    if (!scrollable) {
+      event.preventDefault();
+      return;
+    }
+
+    if (event.touches && event.touches.length > 0) {
+      const currentY = event.touches[0].clientY;
+      const deltaY = currentY - touchStartY;
+      const atTop = scrollable.scrollTop <= 0;
+      const atBottom = scrollable.scrollTop + scrollable.clientHeight >= scrollable.scrollHeight - 1;
+
+      if ((atTop && deltaY > 0) || (atBottom && deltaY < 0)) {
+        event.preventDefault();
+      }
+    }
   }, { passive: false });
+
+  // Keep window view strictly at (0, 0)
+  window.addEventListener("scroll", () => {
+    if (window.scrollX !== 0 || window.scrollY !== 0) {
+      window.scrollTo(0, 0);
+    }
+  }, { passive: true });
+}
+
+function suppressMediaSession() {
+  if ("mediaSession" in navigator) {
+    try {
+      navigator.mediaSession.playbackState = "none";
+      navigator.mediaSession.metadata = null;
+      const actions = ["play", "pause", "stop", "seekbackward", "seekforward", "seekto", "previoustrack", "nexttrack"];
+      actions.forEach((act) => {
+        try {
+          navigator.mediaSession.setActionHandler(act, null);
+        } catch (e) {}
+      });
+    } catch (e) {}
+  }
 }
 
 function createAudioManager() {
@@ -888,6 +1023,7 @@ function createAudioManager() {
   };
 
   function ensureContext() {
+    suppressMediaSession();
     if (!context) {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       if (!AudioContext) return null;
@@ -904,7 +1040,7 @@ function createAudioManager() {
     return context;
   }
 
-  // Web Audio buffers keep game sound inside the canvas-like app experience.
+  // Web Audio buffers keep game sound inside the canvas-like app experience without system media player.
   async function loadBuffers() {
     await Promise.all(Object.entries(urls).map(async ([name, url]) => {
       try {
@@ -921,6 +1057,7 @@ function createAudioManager() {
   }
 
   function play(name) {
+    suppressMediaSession();
     const ctx = ensureContext();
     const buffer = buffers[name];
     if (!ctx || !buffer) return;
@@ -931,6 +1068,7 @@ function createAudioManager() {
   }
 
   function startMusic() {
+    suppressMediaSession();
     const ctx = ensureContext();
     if (!ctx || musicSource || !buffers.music) return;
     musicSource = ctx.createBufferSource();
@@ -941,6 +1079,7 @@ function createAudioManager() {
       musicSource = null;
     };
     musicSource.start(0);
+    suppressMediaSession();
   }
 
   function stopMusic() {
@@ -950,6 +1089,7 @@ function createAudioManager() {
     } catch (error) {}
     musicSource.disconnect();
     musicSource = null;
+    suppressMediaSession();
   }
 
   return {
@@ -965,8 +1105,16 @@ function createAudioManager() {
 }
 
 async function startGame() {
+  suppressMediaSession();
   lockBrowserGestures();
   loadLocalSave();
+
+  // Auto-detect language immediately from URL / navigator (Requirement 2.14)
+  if (!state.manualLanguage) {
+    currentLanguage = detectPreferredLanguage();
+    state.selectedLanguage = currentLanguage;
+  }
+
   bindEvents();
   applyTranslations();
   updateUi();

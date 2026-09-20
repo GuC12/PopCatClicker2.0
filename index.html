@@ -2,13 +2,15 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-  <meta name="description" content="PopCat Clicker — кликер про кота с улучшениями, заданиями и скинами.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="PopCat Clicker — мемный кликер с котом, улучшениями, заданиями и скинами.">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#f4b84a">
   <link rel="icon" href="Img/PopCatCoin.png">
   <link rel="apple-touch-icon" href="Img/PopCatCoin.png">
+  <!-- Яндекс Игры SDK v2 -->
+  <script src="/sdk.js"></script>
   <link rel="stylesheet" href="style.css">
   <title>PopCat Clicker</title>
 </head>
@@ -16,7 +18,10 @@
   <main class="game" id="game" aria-label="PopCat Clicker">
     <section class="hud" aria-label="Статистика игры">
       <div class="brand">
-        <h1 data-i18n="gameTitle">PopCat Clicker</h1>
+        <div class="brand-header">
+          <h1 data-i18n="gameTitle">PopCat Clicker</h1>
+          <button id="langBtn" class="lang-btn" aria-label="Сменить язык">RU</button>
+        </div>
         <p data-i18n="tagline">Кликай по коту, копи монеты и прокачивай мемную машину.</p>
       </div>
 
